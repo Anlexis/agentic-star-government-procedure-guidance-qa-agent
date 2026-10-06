@@ -1,0 +1,35 @@
+# Runtime parameters — loaded by AgentRegistry and passed as Graph(config=...).
+# Separate from config/agent.yaml, which carries identity and compile-time
+# requirements only. A reader pointed at the manifest instead of this file gets
+# nothing back and degrades silently to built-in defaults.
+
+# Retrieval tuning; applied to both corpus lookups.
+retrieval:
+  top_k: 5
+  score_threshold: 0.2            # below this no record grounds the answer, and
+                                  # the reply directs the user to a service counter
+
+# Corpora (JSONL). The e-Gov corpus is public reference data; the municipal
+# supplement is tenant-configurable.
+# Record schema (one JSON object per line):
+#   procedure_id        str    stable key; municipal records reuse the e-Gov
+#                              procedure_id they supplement (override-by-id)
+#   title               str    human-readable procedure name
+#   keywords            [str]  salient terms used by term-overlap retrieval
+#   required_documents  [str]  documents the applicant must submit
+#   processing_time     str    expected turnaround
+#   submission_channel  str    where the application is filed
+#   source              str    citation
+#   municipality        str    (municipal supplement only) tenant scope
+egov_corpus_path: config/egov_procedures.jsonl
+municipal_kb_path: config/municipal_supplement.jsonl
+
+# Refuse any question carrying an individual number (マイナンバー / 個人番号)
+# before retrieval or generation runs. Do not disable.
+enable_mynumber_block: true
+
+# Individual eligibility questions always answer INDETERMINATE.
+eligibility_mode: "indeterminate"
+
+security:
+  s3_gate_enabled: true           # mandatory output gate — do not set to false
